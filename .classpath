@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path=".java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.auth"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.boot"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.interconnection"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.lang"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.oda.driver"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.server"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.servlet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.zenframework.z8.webserver"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Z8-libs"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Birt"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
