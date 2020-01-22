@@ -1,0 +1,1 @@
+Change z8.local.properties before developing.

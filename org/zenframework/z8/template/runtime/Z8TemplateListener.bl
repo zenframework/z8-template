@@ -1,0 +1,7 @@
+public class Z8TemplateListener extends RuntimeListener {
+
+	virtual public void beforeDBGenerate() {}
+
+	virtual public void afterDBGenerate() {}
+
+}

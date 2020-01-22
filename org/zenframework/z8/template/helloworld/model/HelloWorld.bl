@@ -1,0 +1,19 @@
+import org.zenframework.z8.base.table.Table;
+import org.zenframework.z8.base.table.value.StringField;
+
+[generatable]
+[name "Hello World"]
+public class HelloWorld extends Table {
+
+	[name "Greeting"]
+	public StringField greeting;
+
+	records {
+
+		[greeting "Hello"]
+		[name "World"]
+		HeloWorld = 'BD26E824-6EDE-4D4C-84B7-633F5467ED0C';
+
+	}
+
+}

@@ -1,0 +1,15 @@
+import org.zenframework.z8.template.helloworld.model.HelloWorld;
+
+[entry]
+[request true]
+[displayName "Hello, World!"]
+[presentation "table"]
+public class HelloWorldView extends HelloWorld {
+
+	columns = { greeting, name };
+	names = { greeting };
+	controls = { name };
+
+	colCount = 1;
+
+}

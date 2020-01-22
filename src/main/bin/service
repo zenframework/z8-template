@@ -1,0 +1,18 @@
+[Unit]
+Description=Z8 Template
+After=syslog.target
+After=network.target
+After=postgresql.service
+
+[Service]
+Type=simple
+User=z8
+Group=z8
+WorkingDirectory=/opt/zenframework/z8-template
+ExecStart=/opt/zenframework/z8-template/bin/start.sh
+ExecStop=/opt/zenframework/z8-template/bin/stop.sh
+Restart=always
+Environment=USER=z8 HOME=/home/z8
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+/.classpath
+/.externalToolBuilders/
+/.java
+/.project
+/.settings/
+/target/
+/z8.local.properties
+*.cache
+*-sources.jar
+*-javadoc.jar
