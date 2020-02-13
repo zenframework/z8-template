@@ -1,1 +1,3 @@
+# If z8.home is set, build script assumes Z8 project is in Eclipse workspace
+# otherwise build script will use Maven to resolve Z8 dependencies
 systemProp.z8.home=/path/to/z8

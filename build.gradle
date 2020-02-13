@@ -29,7 +29,8 @@ ext.buildFolder = './target'
 buildDir = buildFolder
 
 ext.z8Version = '1.3.0'
-//ext.z8Home = file(System.properties['z8.home'])
+if (System.properties['z8.home'] != null)
+	ext.z8Home = file(System.properties['z8.home'])
 
 apply plugin: 'eclipse'
 apply plugin: 'application'
@@ -79,6 +80,8 @@ eclipse {
 		}.each { entry ->
 			entry.output = entry.output.replace('bin/', "${buildFolder}/classes/")
 		}
+		if (!project.hasProperty('z8Home'))
+			entries += new org.gradle.plugins.ide.eclipse.model.ProjectDependency('/org.zenframework.z8.lang')
 	}
 }
 

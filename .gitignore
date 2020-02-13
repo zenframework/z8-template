@@ -6,6 +6,7 @@
 /.classpath
 /target/
 /z8.local.properties
+/gradle.properties
 *.cache
 *-sources.jar
 *-javadoc.jar
