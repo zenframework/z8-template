@@ -1,5 +1,9 @@
 /.externalToolBuilders/
+/.settings
 /.java
+/.gradle/
+/.project
+/.classpath
 /target/
 /z8.local.properties
 *.cache
