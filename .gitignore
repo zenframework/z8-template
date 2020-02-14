@@ -7,6 +7,9 @@
 /target/
 /z8.local.properties
 /gradle.properties
+/src/main/bin/
+/src/main/conf/
+/src/main/web/
 *.cache
 *-sources.jar
 *-javadoc.jar

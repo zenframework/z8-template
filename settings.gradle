@@ -1,22 +1,5 @@
 rootProject.name = 'z8-template'
 
-if (System.properties['z8.home'] != null) {
-	includeBuild(System.properties['z8.home']) {
-		dependencySubstitution {
-			substitute module('org.zenframework.z8:org.zenframework.z8.compiler') with project(':org.zenframework.z8.compiler')
+if (System.properties['z8.home'] != null)
+	includeBuild(System.properties['z8.home'])
 
-			substitute module('org.zenframework.z8:org.zenframework.z8.boot') with project(':org.zenframework.z8.boot')
-			substitute module('org.zenframework.z8:org.zenframework.z8.server') with project(':org.zenframework.z8.server')
-			substitute module('org.zenframework.z8:org.zenframework.z8.auth') with project(':org.zenframework.z8.auth')
-			substitute module('org.zenframework.z8:org.zenframework.z8.interconnection') with project(':org.zenframework.z8.interconnection')
-			substitute module('org.zenframework.z8:org.zenframework.z8.servlet') with project(':org.zenframework.z8.servlet')
-			substitute module('org.zenframework.z8:org.zenframework.z8.webserver') with project(':org.zenframework.z8.webserver')
-
-			substitute module('org.zenframework.z8:org.zenframework.z8.oda.driver') with project(':org.zenframework.z8.oda.driver')
-
-			substitute module('org.zenframework.z8:org.zenframework.z8.lang') with project(':org.zenframework.z8.lang')
-			substitute module('org.zenframework.z8:org.zenframework.z8.resources') with project(':org.zenframework.z8.resources')
-			substitute module('org.zenframework.z8:org.zenframework.z8.js') with project(':org.zenframework.z8.js')
-		}
-	}
-}

@@ -11,26 +11,22 @@ buildscript {
 	}
 }
 
-buildscript {
-	dependencies {
-		classpath 'gradle.plugin.com.dorongold.plugins:task-tree:1.5'
-	}
-}
-
-apply plugin: 'com.dorongold.task-tree'
-
 repositories {
 	mavenLocal()
 	maven { url 'http://mvn.revoltsoft.ru/' }
 }
 
-ext.buildFolder = './target'
+group = 'org.zenframework.z8'
+version = '1.0'
 
+ext.buildFolder = './target'
 buildDir = buildFolder
 
 ext.z8Version = '1.3.0'
 if (System.properties['z8.home'] != null)
 	ext.z8Home = file(System.properties['z8.home'])
+
+ext.tmpPath = System.properties['java.io.tmpdir'] ?: '/tmp'
 
 apply plugin: 'eclipse'
 apply plugin: 'application'
@@ -43,11 +39,9 @@ apply plugin: 'css'
 configurations {
 	compiler
 	boot
-	if (!project.hasProperty('z8Home')) {
-		webzip { transitive = false }
-		reszip { transitive = false }
-		blzip { transitive = false }
-	}
+	webzipIn { transitive = false }
+	reszipIn { transitive = false }
+	blzipIn { transitive = false }
 }
 
 dependencies {
@@ -59,12 +53,13 @@ dependencies {
 
 	boot "org.zenframework.z8:org.zenframework.z8.boot:${z8Version}"
 
-	if (!project.hasProperty('z8Home')) {
-		blzip "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl" //fileTree("${z8Home}/org.zenframework.z8.lang/target/libs") { include '*.zip' }
-		webzip "org.zenframework.z8:org.zenframework.z8.js:${z8Version}:web" //fileTree("${z8Home}/org.zenframework.z8.js/target/libs") { include '*.zip' }
-		reszip "org.zenframework.z8:org.zenframework.z8.resources:${z8Version}:res" //fileTree("${z8Home}/org.zenframework.z8.resources/target/libs") { include '*.zip' }
-	}
-	
+	blzipIn !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl"
+			: files("${z8Home}/org.zenframework.z8.lang/target/libs/org.zenframework.z8.lang-bl.jar")
+	webzipIn !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.js:${z8Version}:web"
+			: files("${z8Home}/org.zenframework.z8.js/target/libs/org.zenframework.z8.js-web.jar")
+	reszipIn !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.resources:${z8Version}:res"
+			: files("${z8Home}/org.zenframework.z8.resources/target/libs/org.zenframework.z8.resources-res.jar")
+
 	compiler "org.zenframework.z8:org.zenframework.z8.compiler:${z8Version}"
 }
 
@@ -87,19 +82,15 @@ eclipse {
 
 // Prepare resources
 
-ext.resDepsPath = project.hasProperty('z8Home') ? "${z8Home}/org.zenframework.z8.resources/src"
-: "${System.properties['java.io.tmpdir'] ?: '/tmp'}/${project.name}/dependencies/resources"
+ext.resDepsPath = "${tmpPath}/${project.name}/dependencies/resources"
 
 task unpackReszip(type: Copy) {
-	if (!project.hasProperty('z8Home')) {
-		from zipTree(configurations.reszip.singleFile.absolutePath)
-		into resDepsPath
-	}
+	from zipTree(configurations.reszipIn.singleFile.absolutePath)
+	into resDepsPath
 }
 
 task defaultResources(type: Copy) {
-	if (!project.hasProperty('z8Home'))
-		dependsOn unpackReszip
+	dependsOn unpackReszip
 	from resDepsPath
 	into "${projectDir}/src/main"
 	eachFile {
@@ -111,20 +102,16 @@ task defaultResources(type: Copy) {
 
 // Bl & Java config
 
-ext.blDepsPath = project.hasProperty('z8Home') ? "${z8Home}/org.zenframework.z8.lang"
-		: "${System.properties['java.io.tmpdir'] ?: '/tmp'}/${project.name}/dependencies/bl"
+ext.blDepsPath = "${tmpPath}/${project.name}/dependencies/bl"
 ext.blOutput = "${projectDir}/.java"
 
 task unpackBlzip(type: Copy) {
-	if (!project.hasProperty('z8Home')) {
-		from zipTree(configurations.blzip.singleFile.absolutePath)
-		into blDepsPath
-	}
+	from zipTree(configurations.blzipIn.singleFile.absolutePath)
+	into blDepsPath
 }
 
 task compileBl(type: JavaExec) {
-	if (!project.hasProperty('z8Home'))
-		dependsOn unpackBlzip
+	dependsOn unpackBlzip
 
 	group = 'Build'
 	description = 'Compile BL sources'
@@ -155,22 +142,19 @@ sourceSets {
 
 // Web config
 
-ext.webDepsPath = project.hasProperty('z8Home') ? "${z8Home}/org.zenframework.z8.js/target/web"
-		: "${System.properties['java.io.tmpdir'] ?: '/tmp'}/${project.name}/dependencies/web"
+ext.webDepsPath = "${tmpPath}/${project.name}/dependencies/web"
 
 // Unzip webzip dependencies
 task unpackWebzip(type: Copy) {
-	if (!project.hasProperty('z8Home')) {
-		from zipTree(configurations.webzip.singleFile.toPath())
-		into webDepsPath
-	}
+	from zipTree(configurations.webzipIn.singleFile.toPath())
+	into webDepsPath
 }
 
 combineCss {
-	if (!project.hasProperty('z8Home'))
-		dependsOn unpackWebzip
+	dependsOn unpackWebzip
 	source = [ "${webDepsPath}/debug/css/revolt.css" ].plus(
-			file("$projectDir/src/main/css/css.buildorder").readLines().collect { "$projectDir/src/main/css/$it" })
+			file("$projectDir/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+					.collect { "${projectDir}/src/main/css/${it}" })
 	dest = file("${buildDir}/web/debug/css/${project.name}.css")
 }
 
@@ -181,22 +165,29 @@ minifyCss {
 }
 
 combineJs {
-	if (project.hasProperty('z8Home'))
-		dependsOn unpackWebzip
+	dependsOn unpackWebzip
 	source = [ "${webDepsPath}/debug/revolt.js" ].plus(
-			file("$projectDir/src/main/js/js.buildorder").readLines().collect { "$projectDir/src/main/js/$it" })
+			file("$projectDir/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+					.collect { "${projectDir}/src/main/js/${it}" })
 	dest = file("${buildDir}/web/debug/${project.name}.js")
 }
 
 minifyJs {
 	source = combineJs
 	dest = file("${buildDir}/web/${project.name}.js")
-	closure { warningLevel = 'QUIET' }
+	closure {
+		warningLevel = 'QUIET'
+		compilerOptions = [
+			languageIn: 'ECMASCRIPT6',
+			languageOut: 'ECMASCRIPT5',
+			rewritePolyfills: false
+		]
+	}
 }
 
 task prepareWeb(type: Copy) {
 	dependsOn defaultResources
-	from('src/main/webapp') {
+	from('src/main/web') {
 		filesMatching('**/*.html') {
 			expand project: project
 		}
@@ -206,7 +197,7 @@ task prepareWeb(type: Copy) {
 
 task prepareDebug(type: Copy) {
 	dependsOn defaultResources
-	from('src/main/webapp') {
+	from('src/main/web') {
 		exclude 'WEB-INF/**'
 		exclude 'debug.html'
 		filesMatching('**/*.html') {
@@ -216,7 +207,7 @@ task prepareDebug(type: Copy) {
 	into "${buildDir}/web/debug"
 }
 
-task assembleWeb(dependsOn: [minifyCss, minifyJs, prepareWeb, prepareDebug])
+task assembleWeb(dependsOn: [ minifyCss, minifyJs, prepareWeb, prepareDebug ])
 
 // Application config
 
@@ -268,10 +259,15 @@ distributions {
 		contents {
 			from(buildDir) {
 				include 'web/**'
-				//exclude 'web/debug/**'
+				exclude 'web/debug/**'
 			}
 			from("$projectDir/src/main") {
 				include 'bin/**'
+				exclude 'bin/*.sh'
+			}
+			from("$projectDir/src/main") {
+				include 'bin/*.sh'
+				include 'conf/**'
 				expand project: project
 			}
 		}
