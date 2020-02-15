@@ -39,9 +39,9 @@ apply plugin: 'css'
 configurations {
 	compiler
 	boot
-	webzipIn { transitive = false }
-	reszipIn { transitive = false }
-	blzipIn { transitive = false }
+	revolt { transitive = false }
+	resources { transitive = false }
+	blzip { transitive = false }
 }
 
 dependencies {
@@ -53,12 +53,12 @@ dependencies {
 
 	boot "org.zenframework.z8:org.zenframework.z8.boot:${z8Version}"
 
-	blzipIn !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl"
+	blzip !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl"
 			: files("${z8Home}/org.zenframework.z8.lang/target/libs/org.zenframework.z8.lang-bl.jar")
-	webzipIn !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.js:${z8Version}:web"
-			: files("${z8Home}/org.zenframework.z8.js/target/libs/org.zenframework.z8.js-web.jar")
-	reszipIn !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.resources:${z8Version}:res"
-			: files("${z8Home}/org.zenframework.z8.resources/target/libs/org.zenframework.z8.resources-res.jar")
+	revolt !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.js:${z8Version}:rz"
+			: files("${z8Home}/org.zenframework.z8.js/target/libs/org.zenframework.z8.js-rz.jar")
+	resources !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.resources:${z8Version}:rz"
+			: files("${z8Home}/org.zenframework.z8.resources/target/libs/org.zenframework.z8.resources-rz.jar")
 
 	compiler "org.zenframework.z8:org.zenframework.z8.compiler:${z8Version}"
 }
@@ -82,16 +82,8 @@ eclipse {
 
 // Prepare resources
 
-ext.resDepsPath = "${tmpPath}/${project.name}/dependencies/resources"
-
-task unpackReszip(type: Copy) {
-	from zipTree(configurations.reszipIn.singleFile.absolutePath)
-	into resDepsPath
-}
-
 task defaultResources(type: Copy) {
-	dependsOn unpackReszip
-	from resDepsPath
+	from zipTree(configurations.resources.singleFile)
 	into "${projectDir}/src/main"
 	eachFile {
 		if (it.relativePath.getFile(destinationDir).exists()) {
@@ -106,7 +98,7 @@ ext.blDepsPath = "${tmpPath}/${project.name}/dependencies/bl"
 ext.blOutput = "${projectDir}/.java"
 
 task unpackBlzip(type: Copy) {
-	from zipTree(configurations.blzipIn.singleFile.absolutePath)
+	from zipTree(configurations.blzip.singleFile.absolutePath)
 	into blDepsPath
 }
 
@@ -142,19 +134,11 @@ sourceSets {
 
 // Web config
 
-ext.webDepsPath = "${tmpPath}/${project.name}/dependencies/web"
-
-// Unzip webzip dependencies
-task unpackWebzip(type: Copy) {
-	from zipTree(configurations.webzipIn.singleFile.toPath())
-	into webDepsPath
-}
-
 combineCss {
-	dependsOn unpackWebzip
-	source = [ "${webDepsPath}/debug/css/revolt.css" ].plus(
-			file("$projectDir/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
-					.collect { "${projectDir}/src/main/css/${it}" })
+	source = zipTree(configurations.revolt.singleFile).matching {
+		include "web/debug/css/revolt.css"
+	}.plus(file("$projectDir/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+			.collect { "${projectDir}/src/main/css/${it}" })
 	dest = file("${buildDir}/web/debug/css/${project.name}.css")
 }
 
@@ -165,10 +149,10 @@ minifyCss {
 }
 
 combineJs {
-	dependsOn unpackWebzip
-	source = [ "${webDepsPath}/debug/revolt.js" ].plus(
-			file("$projectDir/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
-					.collect { "${projectDir}/src/main/js/${it}" })
+	source = zipTree(configurations.revolt.singleFile).matching {
+		include "web/debug/revolt.js"
+	}.plus(file("$projectDir/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+			.collect { "${projectDir}/src/main/js/${it}" })
 	dest = file("${buildDir}/web/debug/${project.name}.js")
 }
 
@@ -276,9 +260,3 @@ distributions {
 
 distZip.dependsOn assembleWeb
 distTar.dependsOn assembleWeb
-
-//publishing {
-//	repositories {
-//		mavenLocal()
-//	}
-//}
