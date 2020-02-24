@@ -128,7 +128,7 @@ sourceSets {
 		java.srcDirs blOutput
 		java.outputDir = file("${buildDir}/classes/main")
 		resources.srcDirs blOutput
-		resources.outputDir = file("${buildDir}/classes/main")
+		output.resourcesDir = file("${buildDir}/classes/main")
 	}
 }
 
