@@ -146,6 +146,11 @@ minifyCss {
 	source = combineCss
 	dest = "${buildDir}/web/css/${project.name}.css"
 	closure { warningLevel = 'QUIET' }
+	doLast {
+		ant.replaceregexp(match: '(calc\\([\\d|\\.]+[^+]*)(\\+)', replace:'\1 \2 ', flags:'g') {
+			file "${buildDir}/web/css/${rootProject.name}.css"
+		}
+	}
 }
 
 combineJs {
