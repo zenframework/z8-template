@@ -196,7 +196,7 @@ task prepareDebug(type: Copy) {
 	into "${buildDir}/web/debug"
 }
 
-task assembleWeb(dependsOn: [ minifyCss, minifyJs, prepareWeb, prepareDebug ])
+task assembleWeb(group: 'Build', dependsOn: [ minifyCss, minifyJs, prepareWeb, prepareDebug ])
 
 // Application config
 
