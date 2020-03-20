@@ -160,6 +160,7 @@ combineJs {
 	}.plus(file("$projectDir/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
 			.collect { "${projectDir}/src/main/js/${it}" })
 	dest = file("${buildDir}/web/debug/${project.name}.js")
+	encoding = 'UTF-8'
 }
 
 minifyJs {
