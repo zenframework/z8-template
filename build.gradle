@@ -30,9 +30,9 @@ ext.tmpPath = System.properties['java.io.tmpdir'] ?: '/tmp'
 
 apply plugin: 'eclipse'
 apply plugin: 'application'
-apply plugin: 'war'
 apply plugin: 'js'
 apply plugin: 'css'
+//apply plugin: 'war'
 //apply plugin: 'maven'
 //apply plugin: 'maven-publish'
 
@@ -228,20 +228,20 @@ run {
 
 // WAR config
 
-war {
-	dependsOn assembleWeb
-	exclude('debug.html')
-	from("${buildDir}/web") {
-		include '**/*.css'
-		include '**/*.js'
-	}
-	filesMatching('**/*.html') {
-		expand project: project
-	}
-
-	// TODO Exclude WEB-INF/lib/*.pom files
-	//exclude('**/*.pom')
-}
+//war {
+//	dependsOn assembleWeb
+//	exclude('debug.html')
+//	from("${buildDir}/web") {
+//		include '**/*.css'
+//		include '**/*.js'
+//	}
+//	filesMatching('**/*.html') {
+//		expand project: project
+//	}
+//
+//	// TODO Exclude WEB-INF/lib/*.pom files
+//	//exclude('**/*.pom')
+//}
 
 // Distribution config
 
@@ -252,11 +252,11 @@ distributions {
 				include 'web/**'
 				exclude 'web/debug/**'
 			}
-			from("$projectDir/src/main") {
+			from("${projectDir}/src/main") {
 				include 'bin/**'
 				exclude 'bin/*.sh'
 			}
-			from("$projectDir/src/main") {
+			from("${projectDir}/src/main") {
 				include 'bin/*.sh'
 				include 'conf/**'
 				expand project: project
