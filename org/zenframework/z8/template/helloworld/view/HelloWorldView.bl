@@ -1,3 +1,8 @@
+import org.zenframework.z8.base.form.action.Action;
+import org.zenframework.z8.base.query.Query;
+import org.zenframework.z8.base.table.system.Domains;
+import org.zenframework.z8.base.table.value.Field;
+import org.zenframework.z8.template.helloworld.ie.TemplateMessage;
 import org.zenframework.z8.template.helloworld.model.HelloWorld;
 
 [entry]
@@ -6,9 +11,25 @@ import org.zenframework.z8.template.helloworld.model.HelloWorld;
 [presentation "table"]
 public class HelloWorldView extends HelloWorld {
 
-	columns = { greeting, name };
-	names = { greeting };
-	controls = { name };
+	[displayName "Send"]
+	private Action send = class {
+		virtual protected void execute(guid[] recordIds, Query context, guid[] selected, Query query) {
+			Domains domains;
+			domains.read(Field[] { domains.address }, !domains.owner);
+			while (domains.next()) {
+				TemplateMessage message;
+				message.setAddress(domains.address.get());
+				message.addRecords(container, Field[] { container.greeting, container.name, container.description, container.attachment }, recordIds);
+				message.send();
+			}
+		}
+	};
+
+	columns = { greeting, name, description, attachment };
+	names = { greeting, name };
+	controls = { greeting, attachment, description };
+
+	actions = { send };
 
 	colCount = 1;
 

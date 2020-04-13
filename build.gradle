@@ -23,8 +23,6 @@ ext.buildFolder = './target'
 buildDir = buildFolder
 
 ext.z8Version = '1.3.0'
-if (System.properties['z8.home'] != null)
-	ext.z8Home = file(System.properties['z8.home'])
 
 ext.tmpPath = System.properties['java.io.tmpdir'] ?: '/tmp'
 
@@ -138,7 +136,7 @@ sourceSets {
 combineCss {
 	source = zipTree(configurations.revolt.singleFile).matching {
 		include "web/debug/css/revolt.css"
-	}.plus(file("$projectDir/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+	}.plus(file("${projectDir}/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
 			.collect { "${projectDir}/src/main/css/${it}" })
 	dest = file("${buildDir}/web/debug/css/${project.name}.css")
 }
@@ -157,7 +155,7 @@ minifyCss {
 combineJs {
 	source = zipTree(configurations.revolt.singleFile).matching {
 		include "web/debug/revolt.js"
-	}.plus(file("$projectDir/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+	}.plus(file("${projectDir}/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
 			.collect { "${projectDir}/src/main/js/${it}" })
 	dest = file("${buildDir}/web/debug/${project.name}.js")
 	encoding = 'UTF-8'
