@@ -78,18 +78,6 @@ eclipse {
 	}
 }
 
-// Prepare resources
-
-task defaultResources(type: Copy) {
-	from zipTree(configurations.resources.singleFile)
-	into "${projectDir}/src/main"
-	eachFile {
-		if (it.relativePath.getFile(destinationDir).exists()) {
-			it.exclude()
-		}
-	}
-}
-
 // Bl & Java config
 
 ext.blDepsPath = "${tmpPath}/${project.name}/dependencies/bl"
@@ -191,14 +179,24 @@ minifyJs {
 	}
 }
 
-task prepareWeb(type: Copy) {
-	dependsOn defaultResources
-	from('src/main/web') {
-		filesMatching('**/*.html') {
-			expand project: project
+task prepareWeb(type: Copy, group: 'Build') {
+	if (project.hasProperty('z8Home'))
+		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.resources:assembleRz')
+
+	from (zipTree(configurations.resources.singleFile)) {
+		include 'web/css/**'
+		include 'web/WEB-INF/fonts/**'
+		include 'web/WEB-INF/reports/**'
+		include 'web/WEB-INF/resources/**'
+	}
+	from zipTree(configurations.doczillajs.singleFile)
+	from('src/main') {
+		include 'web/**/*'
+		filesMatching(['web/**/*.html', 'web/WEB-INF/project.xml']) {
+			expand project: rootProject
 		}
 	}
-	into "${buildDir}/web"
+	into buildDir
 }
 
 task prepareDebug(type: Copy) {
