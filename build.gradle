@@ -189,7 +189,6 @@ task prepareWeb(type: Copy, group: 'Build') {
 		include 'web/WEB-INF/reports/**'
 		include 'web/WEB-INF/resources/**'
 	}
-	from zipTree(configurations.doczillajs.singleFile)
 	from('src/main') {
 		include 'web/**/*'
 		filesMatching(['web/**/*.html', 'web/WEB-INF/project.xml']) {
@@ -200,13 +199,14 @@ task prepareWeb(type: Copy, group: 'Build') {
 }
 
 task prepareDebug(type: Copy) {
-	dependsOn defaultResources
+	dependsOn prepareWeb
+
+	from ("${buildDir}/web") {
+		include 'css/fonts/**'
+	}
 	from('src/main/web') {
 		exclude 'WEB-INF/**'
 		exclude 'debug.html'
-		filesMatching('**/*.html') {
-			expand project: project
-		}
 	}
 	into "${buildDir}/web/debug"
 }
