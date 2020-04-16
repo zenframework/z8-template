@@ -133,16 +133,25 @@ sourceSets {
 
 // Web config
 
-combineCss {
-	source = zipTree(configurations.revolt.singleFile).matching {
-		include "web/debug/css/revolt.css"
-	}.plus(file("${projectDir}/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
-			.collect { "${projectDir}/src/main/css/${it}" })
-	dest = file("${buildDir}/web/debug/css/${project.name}.css")
+task concatCss {
+	if (project.hasProperty('z8Home'))
+		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleRz')
+	doLast {
+		def source = zipTree(configurations.revolt.singleFile).matching {
+			include "web/debug/css/revolt.css"
+		}.plus(file("${projectDir}/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+				.collect { file("${projectDir}/src/main/css/${it}") })
+		def dest = file("${buildDir}/web/debug/css/${rootProject.name}.css")
+		dest.parentFile.mkdirs()
+		dest.newWriter('UTF-8').withWriter { w ->
+			source.each { f -> w << f.getText('UTF-8') }
+		}
+	}
 }
 
 minifyCss {
-	source = combineCss
+	dependsOn concatCss
+	source = file("${buildDir}/web/debug/css/${rootProject.name}.css")
 	dest = "${buildDir}/web/css/${project.name}.css"
 	closure { warningLevel = 'QUIET' }
 	doLast {
@@ -152,17 +161,25 @@ minifyCss {
 	}
 }
 
-combineJs {
-	source = zipTree(configurations.revolt.singleFile).matching {
-		include "web/debug/revolt.js"
-	}.plus(file("${projectDir}/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
-			.collect { "${projectDir}/src/main/js/${it}" })
-	dest = file("${buildDir}/web/debug/${project.name}.js")
-	encoding = 'UTF-8'
+task concatJs {
+	if (project.hasProperty('z8Home'))
+		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleRz')
+	doLast {
+		def source = zipTree(configurations.revolt.singleFile).matching {
+			include "web/debug/revolt.js"
+		}.plus(file("${projectDir}/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
+				.collect { file("${projectDir}/src/main/js/${it}") })
+		def dest = file("${buildDir}/web/debug/${rootProject.name}.js")
+		dest.parentFile.mkdirs()
+		dest.newWriter('UTF-8').withWriter { w ->
+			source.each { f -> w << f.getText('UTF-8') }
+		}
+	}
 }
 
 minifyJs {
-	source = combineJs
+	dependsOn concatJs
+	source = file("${buildDir}/web/debug/${rootProject.name}.js")
 	dest = file("${buildDir}/web/${project.name}.js")
 	closure {
 		warningLevel = 'QUIET'
