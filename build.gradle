@@ -132,7 +132,7 @@ task concatCss {
 		def dest = file("${buildDir}/web/debug/css/${rootProject.name}.css")
 		dest.parentFile.mkdirs()
 		dest.newWriter('UTF-8').withWriter { w ->
-			source.each { f -> w << f.getText('UTF-8') }
+			source.each { f -> w << f.getText('UTF-8') << '\n' }
 		}
 	}
 }
@@ -160,7 +160,7 @@ task concatJs {
 		def dest = file("${buildDir}/web/debug/${rootProject.name}.js")
 		dest.parentFile.mkdirs()
 		dest.newWriter('UTF-8').withWriter { w ->
-			source.each { f -> w << f.getText('UTF-8') }
+			source.each { f -> w << f.getText('UTF-8') << '\n' }
 		}
 	}
 }
