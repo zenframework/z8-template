@@ -1,7 +1,11 @@
 /.externalToolBuilders/
+/.settings
 /.java
+/.gradle/
 /target/
-/z8.local.properties
+/.project
+/.classpath
+/gradle.properties
 *.cache
 *-sources.jar
 *-javadoc.jar
