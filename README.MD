@@ -1,4 +1,4 @@
-# Build How-to
+# Z8 Template Project Build How-to
 
 Copy _gradle.properties.default_ to _gradle.properties_ then choose one of project building options.
 
