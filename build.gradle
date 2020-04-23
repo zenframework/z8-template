@@ -35,11 +35,16 @@ apply plugin: 'css'
 //apply plugin: 'maven-publish'
 
 configurations {
+	/* Z8 BL-to-Java compiler dependency */
 	compiler
+	/* Z8 Boot classpath dependency */
 	boot
+	/* Z8 JavaScript dependency */
 	revolt { transitive = false }
+	/* WEB-INF resource */
 	resources { transitive = false }
-	blzip { transitive = false }
+	/* BL language dependency */
+	lang { transitive = false }
 }
 
 dependencies {
@@ -51,7 +56,8 @@ dependencies {
 
 	boot "org.zenframework.z8:org.zenframework.z8.boot:${z8Version}"
 
-	blzip !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl"
+	/* Z8 specific dependencies are resolved directly to files in Z8 home or to Maven artifacts otherwise */
+	lang !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl"
 			: files("${z8Home}/org.zenframework.z8.lang/target/libs/org.zenframework.z8.lang-bl.jar")
 	revolt !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.js:${z8Version}:rz"
 			: files("${z8Home}/org.zenframework.z8.js/target/libs/org.zenframework.z8.js-rz.jar")
@@ -83,13 +89,15 @@ eclipse {
 ext.blDepsPath = "${tmpPath}/${project.name}/dependencies/bl"
 ext.blOutput = "${projectDir}/.java"
 
-task unpackBlzip(type: Copy) {
-	from zipTree(configurations.blzip.singleFile.absolutePath)
+/* Unpack BL dependency fo BL-to-java compilation */
+task unpackLang(type: Copy) {
+	from zipTree(configurations.lang.singleFile.absolutePath)
 	into blDepsPath
 }
 
+/* Compile BL to Java */
 task compileBl(type: JavaExec) {
-	dependsOn unpackBlzip
+	dependsOn unpackLang
 
 	group = 'Build'
 	description = 'Compile BL sources'
@@ -104,12 +112,14 @@ task compileBl(type: JavaExec) {
 	]
 }
 
+/* Set Java version and sources encoding */
 tasks.withType(JavaCompile) {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 	options.encoding = 'UTF-8'
 }
 
+/* Add BL-compiled Java-sources */
 sourceSets {
 	main {
 		java.srcDirs blOutput
@@ -121,6 +131,7 @@ sourceSets {
 
 // Web config
 
+/* Concat CSS-files, CSS-sources order is specified in src/main/css/.buildorder */
 task concatCss {
 	if (project.hasProperty('z8Home'))
 		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleRz')
@@ -137,6 +148,7 @@ task concatCss {
 	}
 }
 
+/* Minify CSS file */
 minifyCss {
 	dependsOn concatCss
 	source = file("${buildDir}/web/debug/css/${rootProject.name}.css")
@@ -149,6 +161,7 @@ minifyCss {
 	}
 }
 
+/* Concat JavaScript-files, JavaScript-sources order is specified in src/main/js/.buildorder */
 task concatJs {
 	if (project.hasProperty('z8Home'))
 		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleRz')
@@ -165,6 +178,7 @@ task concatJs {
 	}
 }
 
+/* Minify JavaScript */
 minifyJs {
 	dependsOn concatJs
 	source = file("${buildDir}/web/debug/${rootProject.name}.js")
@@ -179,16 +193,25 @@ minifyJs {
 	}
 }
 
-task prepareWeb(type: Copy, group: 'Build') {
+/* Copy static resources to build folder */
+task prepareResources(type: Copy, group: 'Build') {
 	if (project.hasProperty('z8Home'))
 		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.resources:assembleRz')
-
 	from (zipTree(configurations.resources.singleFile)) {
+		include 'bin/**/*'
 		include 'web/css/**'
 		include 'web/WEB-INF/fonts/**'
 		include 'web/WEB-INF/reports/**'
 		include 'web/WEB-INF/resources/**'
+		filesMatching('bin/*.sh') {
+			expand project: project
+		}
 	}
+	into buildDir
+}
+
+/* Copy web resources to webapp folder */
+task prepareWeb(type: Copy, group: 'Build') {
 	from('src/main') {
 		include 'web/**/*'
 		filesMatching(['web/**/*.html', 'web/WEB-INF/project.xml']) {
@@ -198,6 +221,7 @@ task prepareWeb(type: Copy, group: 'Build') {
 	into buildDir
 }
 
+/* Prepare non-minified CSS & JS for debugging */
 task prepareDebug(type: Copy) {
 	dependsOn prepareWeb
 
@@ -211,7 +235,8 @@ task prepareDebug(type: Copy) {
 	into "${buildDir}/web/debug"
 }
 
-task assembleWeb(group: 'Build', dependsOn: [ minifyCss, minifyJs, prepareWeb, prepareDebug ])
+/* Assemble all web resources */
+task assembleWeb(group: 'Build', dependsOn: [ minifyCss, minifyJs, prepareResources, prepareWeb, prepareDebug ])
 
 // Application config
 
@@ -232,8 +257,6 @@ run {
 		"-Dorg.eclipse.jetty.server.Request.maxFormContentSize=${appMaxFormContentSize}",
 		"-Dorg.mortbay.http.HttpRequest.maxFormContentSize=${appMaxFormContentSize}",
 		"-Djava.rmi.server.hostname=${appHost}",
-		"-Dz8.webserver.port=${appPort}",
-		"-Dz8.webserver.webapp=${buildDir}/web"
 	]
 	args = ['-server', 'webserver']
 	workingDir = "${buildDir}/web/WEB-INF"
@@ -263,7 +286,9 @@ distributions {
 		contents {
 			from(buildDir) {
 				include 'web/**'
+				include 'bin/**'
 				exclude 'web/debug/**'
+				exclude 'web/WEB-INF/**'
 			}
 			from("${projectDir}/src/main") {
 				include 'bin/**'
@@ -273,6 +298,13 @@ distributions {
 				include 'bin/*.sh'
 				include 'conf/**'
 				expand project: project
+			}
+			into ('work') {
+				from ("${buildDir}/web/WEB-INF") {
+					exclude '*.cache'
+					exclude 'storage/**/*'
+					exclude 'reports/generated/**/*'
+				}
 			}
 		}
 	}

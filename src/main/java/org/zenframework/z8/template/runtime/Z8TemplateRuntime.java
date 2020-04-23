@@ -11,6 +11,17 @@ import org.zenframework.z8.server.logs.Trace;
 import org.zenframework.z8.server.request.Loader;
 import org.zenframework.z8.server.runtime.AbstractRuntime;
 
+/**
+ * 
+ * Класс Z8TemplateRuntime реализует загрузку классов-слушателей, являющихся наследниками RuntimeListener
+ * Имена классов-слушателей должны быть перечислены в файле META-INF/z8/runtime.listener
+ * 
+ * Сам класс Z8TemplateRuntime грузится сервером Z8 при старте за счёт того, что его имя (org.zenframework.z8.template.runtime.Z8TemplateRuntime)
+ * указано в специальном ресурсе META-INF/z8.runtime
+ * 
+ * @author Oleg S. Lekshin
+ *
+ */
 public class Z8TemplateRuntime extends AbstractRuntime {
 
 	private static final String RUNTIME_LISTENERS = "META-INF/z8/runtime.listener";

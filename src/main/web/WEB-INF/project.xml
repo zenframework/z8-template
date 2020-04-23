@@ -7,16 +7,16 @@
 	<entry key="application.database.schema">${project['application.database.schema']}</entry>
 	<entry key="application.database.user">${project['application.database.user']}</entry>
 	<entry key="application.database.password">${project['application.database.password']}</entry>
-	<entry key="application.database.driver">org.postgresql.Driver</entry>
 	<entry key="application.database.connection">${project['application.database.connection']}</entry>
+	<entry key="application.database.driver">org.postgresql.Driver</entry>
 	<entry key="application.database.charset">UTF-8</entry>
-
-	<entry key="web.server.upload.max">5</entry>                        <!-- default=5, megabytes -->
 
 	<entry key="web.server.servlet.startApplicationServer">true</entry>
 	<entry key="web.server.servlet.startAuthorityCenter">true</entry>
-	<entry key="web.server.servlet.startInterconnectionCenter">true</entry>
+	<entry key="web.server.servlet.startInterconnectionCenter">false</entry>
 	
+	<entry key="web.server.port"></entry>                               <!-- default=25000 -->
+	<entry key="web.server.http.port">9080</entry>                      <!-- default-9080 -->
 	<entry key="web.server.upload.max">5</entry>                        <!-- default=5, megabytes -->
 	<entry key="web.client.download.max">1</entry>                      <!-- default=1, megabytes -->
 	<entry key="web.client.hashPassword">true</entry>                   <!-- default=true -->
@@ -33,12 +33,10 @@
 	<entry key="interconnection.center.host"></entry>                   <!-- default=localhost -->
 	<entry key="interconnection.center.cache"></entry>                  <!-- default=true -->
 
-	<entry key="web.server.port"></entry>                   			<!-- default=20000, 0 to disable -->
-	
 	<entry key="trace.sql">false</entry>                                <!-- default=false -->
 	<entry key="trace.sql.connections">false</entry>                    <!-- default=false -->
 
-	<entry key="scheduler.enabled">true</entry>                        <!-- default=true -->
+	<entry key="scheduler.enabled">false</entry>                        <!-- default=true -->
 
 	<entry key="transport.job.cron">* * * * *</entry>                         <!-- default="*/5 * * * *", <empty> to disable -->
 	<entry key="maintenance.job.cron"></entry>                       <!-- default="0 * * * *", <empty> to disable -->

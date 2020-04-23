@@ -1,18 +1,28 @@
-import org.zenframework.z8.base.table.system.Roles;
 import org.zenframework.z8.lang.Object;
 
+/* Атрибут [native] указывает, что реализация класса RuntimeListener дана на языке Java */
 [native "org.zenframework.z8.template.runtime.RuntimeListener"]
+
+/*
+ * Класс RuntimeListener описывает "класс-слушатель", в котором определены методы,
+ * срабатывающие при наступлении события генерации схемы БД.
+ * RuntimeListener по сути является интерфейсом, или абстрактным классом, т.к. реализации его методов пустые.
+ * Наследники RuntimeListener должны регистрироваться в файле src/main/resources/META-INF/z8/runtime.listener
+ * для загрузки их классом org.zenframework.z8.template.runtime.Z8TemplateRuntime,
+ * который читает указанный ресурс, загружает перечисленные в нём классы и регистрирует их в генераторе БД.
+ */
 public class RuntimeListener extends Object {
 	
+	/*
+	 * Метод, запускающийся перед генерацией схемы БД
+	 * virtual - модфикатор мметода, указывающий на возможность его переопределения
+	 */
 	virtual public void beforeDBGenerate();
 
-	virtual public void afterDBGenerate() {
-		Setup setup;
-
-		setup.setTableAccess(setup.privateTables, guid[] { Roles.User }, false, false, false, false, false);
-		setup.setTableAccess(setup.publicTables, guid[] { Roles.Administrator, Roles.User }, true, true, true, true, true);
-
-		setup.setRequestAccess(setup.publicRequests, guid[] { Roles.User }, true);
-	}
+	/*
+	 * Метод, запускающийся после генерации схемы БД
+	 * virtual - модфикатор мметода, указывающий на возможность его переопределения
+	 */
+	virtual public void afterDBGenerate();
 
 }

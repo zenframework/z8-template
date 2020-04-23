@@ -1,6 +1,9 @@
+// JS-класс, описывающий Viewport приложения
+// Viewport - это окно приложения, в котором открываются формы
 Z8.define('org.zenframework.z8.template.Viewport', {
 	extend: 'Z8.application.viewport.Viewport',
 
+	// Метод возвращает массив кнопок в правом верхнем углу окна
 	createHeaderButtons: function() {
 		var buttons = this.callParent();
 		var login = User.login;
