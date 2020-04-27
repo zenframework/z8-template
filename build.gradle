@@ -139,7 +139,7 @@ task concatCss {
 		def source = zipTree(configurations.revolt.singleFile).matching {
 			include "web/debug/css/revolt.css"
 		}.plus(file("${projectDir}/src/main/css/.buildorder").readLines().findAll { !it.trim().isEmpty() }
-				.collect { file("${projectDir}/src/main/css/${it}") })
+				.collect { file("${projectDir}/src/main/css/${it.trim()}") })
 		def dest = file("${buildDir}/web/debug/css/${rootProject.name}.css")
 		dest.parentFile.mkdirs()
 		dest.newWriter('UTF-8').withWriter { w ->
@@ -169,7 +169,7 @@ task concatJs {
 		def source = zipTree(configurations.revolt.singleFile).matching {
 			include "web/debug/revolt.js"
 		}.plus(file("${projectDir}/src/main/js/.buildorder").readLines().findAll { !it.trim().isEmpty() }
-				.collect { file("${projectDir}/src/main/js/${it}") })
+				.collect { file("${projectDir}/src/main/js/${it.trim()}") })
 		def dest = file("${buildDir}/web/debug/${rootProject.name}.js")
 		dest.parentFile.mkdirs()
 		dest.newWriter('UTF-8').withWriter { w ->
