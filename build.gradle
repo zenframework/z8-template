@@ -114,6 +114,7 @@ task compileBl(type: JavaExec) {
 
 /* Set Java version and sources encoding */
 tasks.withType(JavaCompile) {
+	dependsOn compileBl
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 	options.encoding = 'UTF-8'
@@ -127,6 +128,10 @@ sourceSets {
 		resources.srcDirs blOutput
 		output.resourcesDir = file("${buildDir}/classes/main")
 	}
+}
+
+jar {
+	duplicatesStrategy = 'exclude'
 }
 
 // Web config
