@@ -1,4 +1,6 @@
 import org.zenframework.z8.base.form.Listbox;
+import org.zenframework.z8.base.form.action.Action;
+import org.zenframework.z8.base.query.Query;
 import org.zenframework.z8.template.model.Document;
 import org.zenframework.z8.template.model.History;
 
@@ -27,6 +29,23 @@ import org.zenframework.z8.template.model.History;
  * занимает один столбец по ширине.
  */
 public class Documents extends Document {
+
+	/* Action - действие над одной или несколькими выбранными записями */
+	/* Атрибут [icon] определяет иконку для кнопки действия из состава Font Awesome 4.7.0 (https://fontawesome.com/v4.7.0/icons/) */
+	[icon "fa-trash"]
+	/* Атрибут [displayName] определяет текст кнопки действия */
+	[displayName "Очистить историю"]
+	/* Базовый класс действия - Action. Для действий удобно определять inline-класс */
+	private Action clearHistory = class {
+		/* Метод execute(guid recordId, ...) определяет алгоритм, исполняемый действием */
+		virtual protected void execute(guid recordId, Query context, guid[] selected, Query query) {
+			// Действие clearHistory удаляет историю для текущего документа
+			// Параметр recordId - идентификатор выбранного документа. Если пользователь выбрал несколько документов,
+			// данный метод запустится для каждой выбранной записи
+			History history;
+			history.destroy(history.documentId == recordId);
+		}
+	};
 
 	/* Экземпляр таблицы History для вывода истории изменения документа */
 	public History history;
@@ -73,4 +92,6 @@ public class Documents extends Document {
 	/* Массив columns определяет перечень полей, отображаемых в режиме таблицы */
 	columns = { createdAt, name, doc, status.name, user.name };
 
+	/* Массив действий, доступных в визуальном интерфейсе */
+	actions = { clearHistory };
 }
