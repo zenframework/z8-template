@@ -1,4 +1,12 @@
 buildscript {
+	dependencies {
+		classpath 'gradle.plugin.com.dorongold.plugins:task-tree:1.5'
+	}
+}
+
+apply plugin: 'com.dorongold.task-tree'
+
+buildscript {
 	repositories {
 		mavenLocal()
 		mavenCentral()
@@ -8,6 +16,7 @@ buildscript {
 	dependencies {
 		classpath 'com.eriwen:gradle-css-plugin:2.14.0'
 		classpath 'com.eriwen:gradle-js-plugin:2.14.1'
+		classpath 'org.zenframework.z8:z8-gradle-plugin:1.3.0'
 	}
 }
 
@@ -19,15 +28,13 @@ repositories {
 group = 'org.zenframework.z8'
 version = '1.0'
 
-ext.buildFolder = './target'
-buildDir = buildFolder
+buildDir = "${projectDir}/target"
 
 ext.z8Version = '1.3.0'
 
-ext.tmpPath = System.properties['java.io.tmpdir'] ?: '/tmp'
-
 apply plugin: 'eclipse'
 apply plugin: 'application'
+apply plugin: 'z8-bl'
 apply plugin: 'js'
 apply plugin: 'css'
 //apply plugin: 'war'
@@ -35,103 +42,38 @@ apply plugin: 'css'
 //apply plugin: 'maven-publish'
 
 configurations {
-	/* Z8 BL-to-Java compiler dependency */
-	compiler
 	/* Z8 Boot classpath dependency */
 	boot
 	/* Z8 JavaScript dependency */
-	revolt { transitive = false }
+	revolt {
+		transitive = false
+		canBeResolved = true
+		canBeConsumed = false
+	}
 	/* WEB-INF resource */
-	resources { transitive = false }
-	/* BL language dependency */
-	lang { transitive = false }
+	resources {
+		transitive = false
+		canBeResolved = true
+		canBeConsumed = false
+	}
 }
 
 dependencies {
-	implementation "org.zenframework.z8:org.zenframework.z8.server:${z8Version}"
-	implementation "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}"
-	runtime "org.zenframework.z8:org.zenframework.z8.webserver:${z8Version}"
-	runtime "org.zenframework.z8:org.zenframework.z8.oda.driver:${z8Version}"
 	runtime "org.zenframework.z8.dependencies.jdbc:postgresql-42.0.0:3.0"
 
 	boot "org.zenframework.z8:org.zenframework.z8.boot:${z8Version}"
 
-	/* Z8 specific dependencies are resolved directly to files in Z8 home or to Maven artifacts otherwise */
-	lang !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.lang:${z8Version}:bl"
-			: files("${z8Home}/org.zenframework.z8.lang/target/libs/org.zenframework.z8.lang-bl.jar")
-	revolt !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.js:${z8Version}:rz"
-			: files("${z8Home}/org.zenframework.z8.js/target/libs/org.zenframework.z8.js-rz.jar")
-	resources !project.hasProperty('z8Home') ? "org.zenframework.z8:org.zenframework.z8.resources:${z8Version}:rz"
-			: files("${z8Home}/org.zenframework.z8.resources/target/libs/org.zenframework.z8.resources-rz.jar")
-
-	compiler "org.zenframework.z8:org.zenframework.z8.compiler:${z8Version}"
-}
-
-eclipse {
-	// Z8 nature
-	project.natures 'org.zenframework.z8.pde.ProjectNature'
-	// Eclipse: default java output -> $buildDir/classes/default
-	classpath.defaultOutputDir = new File(buildDir, 'classes/main')
-	// Eclipse: java source folders output -> $buildFolder/classes/...
-	classpath.file.whenMerged {
-		entries.findAll { entry ->
-			entry instanceof org.gradle.plugins.ide.eclipse.model.SourceFolder
-		}.each { entry ->
-			entry.output = entry.output.replace('bin/', "${buildFolder}/classes/")
-		}
-		if (!project.hasProperty('z8Home'))
-			entries += new org.gradle.plugins.ide.eclipse.model.ProjectDependency('/org.zenframework.z8.lang')
-	}
+	revolt "org.zenframework.z8:org.zenframework.z8.js:${z8Version}@zip"
+	resources "org.zenframework.z8:org.zenframework.z8.resources:${z8Version}@zip"
 }
 
 // Bl & Java config
 
-ext.blDepsPath = "${tmpPath}/${project.name}/dependencies/bl"
-ext.blOutput = "${projectDir}/.java"
-
-/* Unpack BL dependency fo BL-to-java compilation */
-task unpackLang(type: Copy) {
-	from zipTree(configurations.lang.singleFile.absolutePath)
-	into blDepsPath
-}
-
-/* Compile BL to Java */
-task compileBl(type: JavaExec) {
-	dependsOn unpackLang
-
-	group = 'Build'
-	description = 'Compile BL sources'
-
-	classpath = configurations.compiler
-	main = 'org.zenframework.z8.compiler.cmd.Main'
-	args = [
-		projectDir,
-		"-projectName:${project.name}",
-		"-output:${blOutput}",
-		"-requires:${blDepsPath}"
-	]
-}
-
 /* Set Java version and sources encoding */
 tasks.withType(JavaCompile) {
-	dependsOn compileBl
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 	options.encoding = 'UTF-8'
-}
-
-/* Add BL-compiled Java-sources */
-sourceSets {
-	main {
-		java.srcDirs blOutput
-		java.outputDir = file("${buildDir}/classes/main")
-		resources.srcDirs blOutput
-		output.resourcesDir = file("${buildDir}/classes/main")
-	}
-}
-
-jar {
-	duplicatesStrategy = 'exclude'
 }
 
 // Web config
@@ -139,7 +81,7 @@ jar {
 /* Concat CSS-files, CSS-sources order is specified in src/main/css/.buildorder */
 task concatCss {
 	if (project.hasProperty('z8Home'))
-		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleRz')
+		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleZip')
 	doLast {
 		def source = zipTree(configurations.revolt.singleFile).matching {
 			include "web/debug/css/revolt.css"
@@ -169,7 +111,7 @@ minifyCss {
 /* Concat JavaScript-files, JavaScript-sources order is specified in src/main/js/.buildorder */
 task concatJs {
 	if (project.hasProperty('z8Home'))
-		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleRz')
+		dependsOn gradle.includedBuild(file(z8Home).name).task(':org.zenframework.z8.js:assembleZip')
 	doLast {
 		def source = zipTree(configurations.revolt.singleFile).matching {
 			include "web/debug/revolt.js"
