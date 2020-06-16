@@ -146,7 +146,7 @@ public class Setup {
 			existingEntries.add(userEntries.entry.get(), userEntries.recordId());
 
 		for (Object entry : entriesCls.keys()) {
-			guid entryId = entriesByClass[entry.className()];
+			guid entryId = entriesByClass[entry.className()] ?: guid.Null;
 			guid existingEntry = existingEntries[entryId] ?: guid.Null;
 			userEntries.position = entriesCls[entry];
 			if (existingEntry == guid.Null) {
