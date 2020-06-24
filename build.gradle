@@ -34,7 +34,7 @@ apply plugin: 'z8-js'
 apply plugin: 'z8-app'
 
 dependencies {
-	webcompile "org.zenframework.z8:org.zenframework.z8.js:${z8Version}"
+	webcompile "org.zenframework.z8:org.zenframework.z8.js:${z8Version}@zip"
 
 	runtime "org.zenframework.z8:org.zenframework.z8.webserver:${z8Version}"
 	runtime "org.zenframework.z8:org.zenframework.z8.oda.driver:${z8Version}"
