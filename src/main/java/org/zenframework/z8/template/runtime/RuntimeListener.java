@@ -30,6 +30,7 @@ public class RuntimeListener extends OBJECT implements DBGenerator.Listener{
 			setJavaClass(RuntimeListener.class);
 		}
 
+		@Override
 		public Object newObject(IObject container) {
 			return new RuntimeListener(container);
 		}
