@@ -30,7 +30,6 @@ buildDir = "${projectDir}/target"
 
 apply plugin: 'eclipse'
 apply plugin: 'z8-bl'
-apply plugin: 'z8-js'
 apply plugin: 'z8-app'
 
 dependencies {
@@ -57,11 +56,11 @@ tasks.withType(JavaCompile) {
 // - resources from ZIP-artifacts of 'webcompile' configuration;
 //   'requiresInclude' points to resources within artifacts
 concatCss {
-	requiresInclude 'web/debug/css/revolt.css'
+	requiresInclude 'web/css/revolt.css'
 }
 
 concatJs {
-	requiresInclude "web/debug/revolt.js"
+	requiresInclude "web/revolt.js"
 }
 
 // Application config
