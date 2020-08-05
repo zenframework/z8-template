@@ -33,11 +33,11 @@ public class Z8TemplateRuntime extends AbstractRuntime {
 				BufferedReader in = new BufferedReader(new InputStreamReader(resources.nextElement().openStream()));
 				for (String line = in.readLine(); line != null; line = in.readLine()) {
 					DBGenerator.addListener((DBGenerator.Listener) Loader.getInstance(line.trim()));
-					Trace.log().info("Runtime listener added: " + line);
+					Trace.logEvent("Runtime listener added: " + line);
 				}
 			}
 		} catch (IOException e) {
-			Trace.log().error("Couldn't read resources '" + RUNTIME_LISTENERS + "'", e);
+			Trace.logError("Couldn't read resources '" + RUNTIME_LISTENERS + "'", e);
 		}
 	}
 
