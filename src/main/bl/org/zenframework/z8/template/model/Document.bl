@@ -1,4 +1,3 @@
-import org.zenframework.z8.base.table.Table;
 import org.zenframework.z8.base.table.system.Users;
 import org.zenframework.z8.base.table.value.FileField;
 import org.zenframework.z8.base.table.value.Link;
@@ -15,7 +14,7 @@ import org.zenframework.z8.base.table.value.StringField;
 [name "Tmp Documents"]
 
 /* Класс Document описывает таблицу в БД для хранения документов */
-public class Document extends Table {
+public class Document extends ProjTable {
 
 	/* Таблица, на которую ссылается поле statusId по Foreign Key */
 	public Status status;

@@ -1,4 +1,3 @@
-import org.zenframework.z8.base.table.Table;
 import org.zenframework.z8.base.table.system.Users;
 import org.zenframework.z8.base.table.value.Link;
 
@@ -12,7 +11,7 @@ import org.zenframework.z8.base.table.value.Link;
 [name "Tmp History"]
 
 /* Класс History описывает таблицу в БД для хранения истории работы с документами */
-public class History extends Table {
+public class History extends ProjTable {
 
 	/* Таблица, на которую ссылается поле documentId по Foreign Key */
 	public Document document;

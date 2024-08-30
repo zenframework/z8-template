@@ -1,5 +1,3 @@
-import org.zenframework.z8.base.table.Table;
-
 /*
  * Атрибут [generatable] указывает Z8, что таблица, которую описывает класс,
  * должна быть создана в БД
@@ -10,7 +8,7 @@ import org.zenframework.z8.base.table.Table;
 [name "Tmp Statuses"]
 
 /* Класс Status описывает таблицу в БД для хранения статусов документов */
-public class Status extends Table {
+public class Status extends ProjTable {
 
 	/* Атрибут [displayName] определяет имя, с которым поле name отображается в UI */
 	[displayName "Статус"] name;

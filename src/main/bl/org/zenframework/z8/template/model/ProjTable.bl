@@ -1,0 +1,14 @@
+import org.zenframework.z8.base.table.Table;
+import org.zenframework.z8.base.table.value.StringField;
+import org.zenframework.z8.base.table.value.TextField;
+
+/* Объявление единого наследника для всех таблиц в проекте */
+public class ProjTable extends Table {
+
+	[name "Name"]
+	public StringField name;
+	name.length = 30;
+
+	[name "Description"]
+	public TextField description;
+}
