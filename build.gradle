@@ -1,43 +1,47 @@
 buildscript {
-	dependencies {
-		classpath 'gradle.plugin.com.dorongold.plugins:task-tree:1.5'
-	}
-}
-
-apply plugin: 'com.dorongold.task-tree'
-
-buildscript {
 	repositories {
 		mavenLocal()
 		mavenCentral()
-		maven { url 'http://mvn.revoltsoft.ru/' }
+		maven { url 'http://mvn.zenframework.org/' }
 		maven { url 'https://plugins.gradle.org/m2/' }
 	}
 	dependencies {
-		classpath 'org.zenframework.z8:z8-gradle-plugin:1.3.8'
+		classpath 'gradle.plugin.com.dorongold.plugins:task-tree:1.5'
+		classpath 'org.zenframework.z8:z8-gradle-plugin:2.1.12'
+        classpath 'com.github.node-gradle:gradle-node-plugin:3.6.0'
 	}
 }
 
 repositories {
 	mavenLocal()
-	maven { url 'http://mvn.revoltsoft.ru/' }
+	mavenCentral()
+	maven { url 'http://mvn.zenframework.org/' }
 }
 
 group = 'org.zenframework.z8'
 version = '1.0'
 
 ext.srcMainDir = 'src/main'
+ext.z8DependenciesVersion = '3.4-cert'
 buildDir = "${projectDir}/target"
 
 apply plugin: 'eclipse'
 apply plugin: 'z8-app'
 
-dependencies {
-	webcompile "org.zenframework.z8:org.zenframework.z8.js:${z8Version}"
+tasks.named('collectProjectJsResources') {
+	inputs.property('projectName', project.name)
 
-	runtime "org.zenframework.z8:org.zenframework.z8.webserver:${z8Version}"
-	runtime "org.zenframework.z8:org.zenframework.z8.oda.driver:${z8Version}"
-	runtime "org.zenframework.z8.dependencies.jdbc:postgresql-42.0.0:3.1"
+	filesMatching(['index.html', 'debug.html']) {
+		expand(project: project)
+	}
+}
+
+dependencies {
+	webcompile "org.zenframework.z8:org.zenframework.z8.js"
+
+	runtime "org.zenframework.z8:org.zenframework.z8.webserver"
+	runtime "org.zenframework.z8:org.zenframework.z8.oda.driver"
+	runtime 'org.postgresql:postgresql:42.5.4'
 }
 
 // Java config

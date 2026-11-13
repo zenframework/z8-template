@@ -1,4 +1,5 @@
 import org.zenframework.z8.base.table.Table;
+import org.zenframework.z8.base.table.value.StringField;
 
 /*
  * Атрибут [generatable] указывает Z8, что таблица, которую описывает класс,
@@ -13,7 +14,10 @@ import org.zenframework.z8.base.table.Table;
 public class Status extends Table {
 
 	/* Атрибут [displayName] определяет имя, с которым поле name отображается в UI */
-	[displayName "Статус"] name;
+	[displayName "Статус"]
+	/* Атрибут [name] определяет имя столбца в таблице БД */
+	[name "Name"]
+	public StringField name;
 
 	/*
 	 * records определяет массив "статических" записей в таблице,

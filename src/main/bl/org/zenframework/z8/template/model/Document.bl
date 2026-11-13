@@ -27,7 +27,8 @@ public class Document extends Table {
 
 	/* Атрибут [displayName] определяет имя, с которым поле createdAt отображается в UI */
 	[displayName "Создан"] createdAt;
-	[displayName "Документ"] name;
+	[name "Name"]
+	[displayName "Документ"] public StringField name;
 	[displayName "Ответственный"] user.name;
 
 	/* Атрибут [name] определяет имя поля doc в БД */
