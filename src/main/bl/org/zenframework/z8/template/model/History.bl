@@ -1,6 +1,7 @@
 import org.zenframework.z8.base.table.Table;
 import org.zenframework.z8.base.table.system.Users;
 import org.zenframework.z8.base.table.value.Link;
+import org.zenframework.z8.base.table.value.TextField;
 
 /*
  * Атрибут [generatable] указывает Z8, что таблица, которую описывает класс,
@@ -27,7 +28,8 @@ public class History extends Table {
 
 	/* Атрибут [displayName] определяет имя, с которым поле createdAt отображается в UI */
 	[displayName "Дата"] createdAt;
-	[displayName "Примечание"] description;
+	[name "Description"]
+	[displayName "Примечание"] public TextField description;
 	[displayName "Ответствунный"] user.name;
 
 }
